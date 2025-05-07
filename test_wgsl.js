@@ -59,6 +59,19 @@ fn main(@builtin(global_invocation_id) index: vec3<u32>) {{
   data0[i] = data1[i] * foo[0];
 }}`;
 
+const test_multiply_runtime_bitcasted_inf_array2 = `
+@group(0) @binding(0) var<storage, read_write> data0: array<f32>;
+@group(0) @binding(1) var<storage, read_write> data1: array<f32>;
+@compute
+@workgroup_size(1,1,1)
+fn main(@builtin(global_invocation_id) index: vec3<u32>) {{
+  let bits: u32 = 0x7F800000u;
+  let inf: f32 = bitcast<f32>(bits);
+  let i: u32 = index.x;
+  data0[i] = inf;
+  data0[i] = data1[i] * data0[i];
+}}`;
+
 const test_multiply_runtime_divzero_inf = `
 @group(0) @binding(0) var<storage, read_write> data0: array<f32>;
 @group(0) @binding(1) var<storage, read_write> data1: array<f32>;
@@ -109,6 +122,7 @@ const setupTests = async () => {
   const read_buf = device.createBuffer({size:buf_1.size, usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ});
   const kernels = [
     test_multiply_bitcasted_inf, test_multiply_runtime_bitcasted_inf, test_multiply_runtime_bitcasted_inf_array,
+    test_multiply_runtime_bitcasted_inf_array2,
     test_multiply_runtime_divzero_inf, test_multiply_runtime_overflow_inf,
     test_multiply_uniform_inf, test_assign_bitcasted_inf
   ];
@@ -159,33 +173,39 @@ const setupTests = async () => {
     const expected = Infinity;
     assertEqual(ret[0], expected, "testMultiplyRuntimeBitcastedInfinityArray");
   };
+  
+  const testMultiplyRuntimeBitcastedInfinityArray2 = async () => {
+    const ret = await execute(pipelines[3], [buf_1, buf_0], [1, 1, 1]);
+    const expected = Infinity;
+    assertEqual(ret[0], expected, "testMultiplyRuntimeBitcastedInfinityArray2");
+  };
 
   const testMultiplyRuntimeDivzeroInfinity = async () => {
-    const ret = await execute(pipelines[3], [buf_1, buf_0], [1, 1, 1]);
+    const ret = await execute(pipelines[4], [buf_1, buf_0], [1, 1, 1]);
     const expected = Infinity;
     assertEqual(ret[0], expected, "testMultiplyRuntimeDivzeroInfinity");
   };
 
   const testMultiplyRuntimeOverflowInfinity = async () => {
-    const ret = await execute(pipelines[4], [buf_1, buf_0], [1, 1, 1]);
+    const ret = await execute(pipelines[5], [buf_1, buf_0], [1, 1, 1]);
     const expected = Infinity;
     assertEqual(ret[0], expected, "testMultiplyRuntimeOverflowInfinity");
   };
 
   const testMultiplyUniformInfinity = async () => {
-    const ret = await execute(pipelines[5], [buf_inf, buf_1, buf_0], [1, 1, 1]);
+    const ret = await execute(pipelines[6], [buf_inf, buf_1, buf_0], [1, 1, 1]);
     const expected = Infinity;
     assertEqual(ret[0], expected, "testMultiplyUniformInfinity");
   };
 
   const testAssignBitcastedInfinity = async () => {
-    const ret = await execute(pipelines[6], [buf_1], [1, 1, 1]);
+    const ret = await execute(pipelines[7], [buf_1], [1, 1, 1]);
     const expected = Infinity;
     assertEqual(ret[0], expected, "testAssignBitcastedInfinity");
   };
 
   return { testMultiplyBitcastedInfinity, testMultiplyRuntimeBitcastedInfinity, testMultiplyRuntimeBitcastedInfinityArray,
-    testMultiplyRuntimeDivzeroInfinity, testMultiplyRuntimeOverflowInfinity, 
+    testMultiplyRuntimeBitcastedInfinityArray2, testMultiplyRuntimeDivzeroInfinity, testMultiplyRuntimeOverflowInfinity, 
     testMultiplyUniformInfinity, testAssignBitcastedInfinity };
 };
 
