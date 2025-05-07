@@ -12,6 +12,7 @@
       const setupTests = (await import('./test_wgsl.js')).default;
       const tests = await setupTests();
       await tests.testMultiplyBitcastedInfinity();
+      await tests.testMultiplyRuntimeBitcastedInfinity();
       await tests.testMultiplyUniformInfinity();
       await tests.testAssignBitcastedInfinity();
     </script>
