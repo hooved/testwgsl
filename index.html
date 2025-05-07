@@ -9,7 +9,8 @@
         out.textContent += args.join(' ') + '\n';
       };
 
-      const setupTests = (await import('./test_wgsl.js')).default;
+      const v = Date.now(); // cache bust
+      const setupTests = (await import(`./test_wgsl.js?v=${v}`)).default;
       const tests = await setupTests();
       await tests.testMultiplyBitcastedInfinity();
       await tests.testMultiplyRuntimeBitcastedInfinity();

@@ -121,10 +121,14 @@ const setupTests = async () => {
   device.queue.writeBuffer(buf_inf, 0, new Float32Array([Infinity]));
   const read_buf = device.createBuffer({size:buf_1.size, usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ});
   const kernels = [
-    test_multiply_bitcasted_inf, test_multiply_runtime_bitcasted_inf, test_multiply_runtime_bitcasted_inf_array,
+    test_multiply_bitcasted_inf,
+    test_multiply_runtime_bitcasted_inf,
+    test_multiply_runtime_bitcasted_inf_array,
     test_multiply_runtime_bitcasted_inf_array2,
-    test_multiply_runtime_divzero_inf, test_multiply_runtime_overflow_inf,
-    test_multiply_uniform_inf, test_assign_bitcasted_inf
+    test_multiply_runtime_divzero_inf,
+    test_multiply_runtime_overflow_inf,
+    test_multiply_uniform_inf,
+    test_assign_bitcasted_inf
   ];
   const pipelines = await Promise.all(kernels.map(name => device.createComputePipelineAsync({
     layout: "auto", compute: { module: device.createShaderModule({ code: name }), entryPoint: "main" }})));
