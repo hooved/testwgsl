@@ -51,9 +51,8 @@ const test_multiply_runtime_overflow_inf = `
 @compute
 @workgroup_size(1,1,1)
 fn main(@builtin(global_invocation_id) index: vec3<u32>) {{
-  let big: f32 = 3.4e38;
-  let inf: f32 = big * 2.0;
   let i: u32 = index.x;
+  let inf: f32 = exp2(data1[i] * 0.0 + 129.0);
   data0[i] = data1[i] * inf;
 }}`;
 
