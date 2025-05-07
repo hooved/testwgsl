@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <div id="output" style="white-space: pre-wrap; font-family: monospace;"></div>
+
+    <script type="module">
+      const out = document.getElementById('output');
+      console.log = (...args) => {
+        out.textContent += args.join(' ') + '\n';
+      };
+
+      const setupTests = (await import('./test_wgsl.js')).default;
+      const tests = await setupTests();
+      await tests.testBitcastedInfinity();
+      await tests.testUniformInfinity();
+    </script>
+  </body>
+</html>
